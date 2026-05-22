@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "06213ba77f41",
+  "session_id": "899fb12e-40f3-48fe-a58e-df50b265f30d",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-22T12:57:00.1653979Z",
+  "branch": "master",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "blip2-main/data/captions.txt"
+  ],
+  "agent": "Claude Code",
+  "model": "DeepSeek-V4-pro",
+  "turn_id": "e99e54ae9378",
+  "checkpoint_transcript_start": 54,
+  "transcript_lines_at_start": 54,
+  "token_usage": {
+    "input_tokens": 381,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 61952,
+    "output_tokens": 259,
+    "api_call_count": 2
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-22T12:57:00.1431466Z",
+    "agent_lines": 39455,
+    "agent_removed": 0,
+    "human_added": 152,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 39607,
+    "total_lines_changed": 39626,
+    "agent_percentage": 99.5684651491445,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
