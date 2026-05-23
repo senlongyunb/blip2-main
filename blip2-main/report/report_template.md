@@ -86,8 +86,8 @@ Mini Q-Former 中包含一组可学习的 query tokens。每一层 decoder layer
 
 ## 5. 训练设置
 
-- 训练数据量：180 张图片，900 条 caption
-- 验证数据量：20 张图片，100 条 caption
+- 训练数据量：7282图片 36410 caption
+- 验证数据量：809 张图片，4045  条 caption
 - epoch：1
 - batch size：2
 - learning rate：2e-4
@@ -127,29 +127,30 @@ Mini Q-Former 中包含一组可学习的 query tokens。每一层 decoder layer
 
 ![generation examples](../code/outputs/generation_examples.png)
 
-当前验证集上的 5 个例子如下：
+当前使用全量 Flickr8k 数据重新训练后，模型已经可以在验证集图片上生成非空英文 caption。下面展示 `generation_examples.png` 中的 5 个验证样例：
 
 | 图片编号 | 图片文件名 | 真实 Caption | 模型生成 Caption |
 |---|---|---|---|
-| 1 | `1220401002_3f44b1f3f7.jpg` | Two children are laughing in the grass . | （空输出） |
-| 2 | `1222322358_225067636e.jpg` | A boy in a red and white shirt is on a swing . | （空输出） |
-| 3 | `1224851143_33bcdd299c.jpg` | A boy eats with a spoon . | （空输出） |
-| 4 | `1225443522_1633e7121f.jpg` | A girl walking alone at night on a street . | （空输出） |
-| 5 | `1227655020_b11a1bb112.jpg` | A black dog and a brown dog playing in tall weeds . | （空输出） |
+| 1 | `101654506_8eb26cfb60.jpg` | A brown and white dog is running through the snow . | A black and white dog is running in the snow. |
+| 2 | `104136873_5b5d41be75.jpg` | People sit on the mountainside and check out the view . | A group of people are hiking in the woods. |
+| 3 | `1042020065_fb3d3ba5ba.jpg` | A boy in a green shirt is looking down at many inflatable boats . | A boy is riding a raft on a water slide. |
+| 4 | `1048710776_bb5b0a5c7c.jpg` | a couple of several people sitting on a ledge overlooking the beach | A group of children are walking along a beach. |
+| 5 | `1056249424_ef2a2e041c.jpg` | The children are playing in the water . | Two children playing in the grass. |
 
-模型已经能够完成训练和调用生成接口，但当前生成结果为空，说明只训练 1 个 epoch 后视觉 prefix 与冻结 OPT 的文本生成空间尚未充分对齐，模型容易直接生成结束符或无有效文本。这是小数据量、短训练轮数和冻结语言模型条件下常见的问题。
+从结果可以看出，模型已经学会了基本的英文 caption 生成格式，并且能够捕捉到部分明显视觉元素。例如第 1 张图片中，模型正确识别出狗和雪地场景，生成结果与真实 caption 比较接近；第 2、4 张图片中，模型能够识别出多人和户外场景，但对具体动作和地点描述仍不够准确；第 3、5 张图片中，模型生成了语法通顺的句子，但与真实图像内容存在一定偏差。
+
+总体来说，本次结果说明 Mini-BLIP2 的训练和推理流程已经跑通，生成阶段不再出现空 caption。由于本实验只训练 Mini Q-Former 和投影层，CLIP 视觉编码器与 OPT 语言模型均保持冻结，且训练轮数仍然较少，所以生成内容还比较泛化，细节理解能力有限。后续如果增加训练 epoch、调整学习率或进一步微调语言模型相关模块，生成结果还有继续提升空间。
+
 
 ## 8. 总结
 
-本实验成功完成了 Mini-BLIP2 的核心流程复现：能够读取 Flickr8k 前 200 张图片及 caption，能够搭建冻结视觉编码器、可训练 Mini Q-Former、投影层和冻结语言解码器组成的模型，并且完成了训练、验证、保存 checkpoint、绘制 loss 曲线和调用 caption 生成接口。
+本实验成功完成了 Mini-BLIP2 的核心流程复现：能够读取 Flickr8k 的图片及 caption，能够搭建冻结视觉编码器、可训练 Mini Q-Former、投影层和冻结语言解码器组成的模型，并且完成了训练、验证、保存 checkpoint、绘制 loss 曲线和调用 caption 生成接口。
 
-生成效果目前还比较弱，验证样例中生成结果为空。主要原因是训练数据量只有 200 张图片，训练轮数只有 1 个 epoch，而 OPT 语言模型保持冻结，中间桥接模块需要更多训练才能学会把图像表示映射到有效文本空间。
 
 如果继续改进，可以尝试：
 
 - 增加训练 epoch，例如训练 5 到 20 个 epoch；
 - 增大数据量，使用更多 Flickr8k 图片；
-- 在生成时加入固定 prompt，例如 `A photo of`；
 - 调整 learning rate、query token 数量和 Q-Former 层数；
 - 使用更小或更容易微调的语言模型；
 - 只解冻语言模型的一小部分参数或使用 LoRA 微调。
@@ -158,13 +159,13 @@ Mini Q-Former 中包含一组可学习的 query tokens。每一层 decoder layer
 
 - 录制工具：entir.io
 - 对话链接：本地 Entire 记录，见 `E:\program_prject\vscode_python_project\论文复现\blip2-main\.entire\metadata\codex-2026-05-22-blip2-train-report\conversation.md`
-- 使用的 AI 模型：ChatGPT / Codex
-- 累计对话时长 / 会话数：约 2 次会话，包含训练 notebook 编写、数据路径确认、报告填写和 Entire 记录整理
+- 使用的 AI 模型：Codex / Claude Code / DeepSeek
+- 累计对话时长 / 会话数：约 2 次会话，包含环境搭建、训练 notebook 编写、数据路径确认、报告填写
 
 简要说明：
 
 ```text
-本次实验中，AI 主要辅助完成 Mini-BLIP2 训练 notebook 的代码组织、数据读取逻辑、模型结构实现、训练流程和实验报告整理。实现过程中根据本地数据目录和实际训练输出进行了检查与修改，例如确认前 200 张图片位于 data/Images 目录，并根据真实训练日志填写 loss 与生成结果。当前 Codex 对话已整理到本地 Entire 目录 .entire/metadata/codex-2026-05-22-blip2-train-report/，其中 conversation.md 是可读记录，full.jsonl 是机器可读记录；如果老师要求公开链接，还需要再通过 entir.io 或 Entire CLI 分享。
+本次实验中，AI 主要辅助完成 Mini-BLIP2 训练 notebook 的代码组织、数据读取逻辑、模型结构实现、训练流程和实验报告整理。 数据量小的时候最终结果没有输出预测文字
 ```
 
 ## 10. Git 提交记录
