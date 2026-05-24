@@ -19,14 +19,14 @@
 
 - 数据集名称：Flickr8k
 - 数据集地址：https://www.kaggle.com/datasets/adityajn105/flickr8k
-- 实际使用数据量：前 200 张图片
-- caption 数量：1000 条 caption，每张图片 5 条 caption
-- 训练集：180 张图片，共 900 条 caption
-- 验证集：20 张图片，共 100 条 caption
+- 实际使用数据量：8091 张图片
+- caption 数量：40455 条 caption，每张图片通常 5 条 caption
+- 训练集：7281 张图片，共 36405 条 caption
+- 验证集： 810 张图片，共 4050 条 caption
 - 图片目录：`data/Images`
 - 标注文件：`data/captions.txt`
 
-数据读取方式：先从 `captions.txt` 读取图片文件名与 caption，再选择前 200 张实际存在于 `data/Images` 目录中的图片。训练和验证按图片划分，避免同一张图片同时出现在训练集和验证集中。
+数据读取方式：先从 `captions.txt` 读取图片文件名与 caption，再选择所有实际存在于 `data/Images` 目录且能匹配到标注的图片。训练和验证按图片划分，避免同一张图片同时出现在训练集和验证集中。
 
 ## 4. 模型结构
 
@@ -86,14 +86,15 @@ Mini Q-Former 中包含一组可学习的 query tokens。每一层 decoder layer
 
 ## 5. 训练设置
 
-- 训练数据量：7282图片 36410 caption
-- 验证数据量：809 张图片，4045  条 caption
+- 训练数据量：810 张图片，4050 条 caption
+- 验证数据量：7281 张图片，36405 条 caption
 - epoch：1
 - batch size：2
+- validation ratio：0.9
 - learning rate：2e-4
 - weight decay：0.01
 - optimizer：AdamW
-- max text length：40
+- max text length：48
 - loss function：cross entropy loss，由 `OPTForCausalLM` 根据 labels 自动计算
 - 运行设备：CUDA
 - PyTorch 版本：2.2.2+cu121
@@ -115,36 +116,36 @@ Mini Q-Former 中包含一组可学习的 query tokens。每一层 decoder layer
 
 | Epoch | Train Loss | Val Loss |
 |---|---:|---:|
-| 1 | 3.2629 | 2.6497 |
+| 1 | 2.7045 | 2.1191 |
 
-从 loss 可以看出，模型完成了正向传播、反向传播、参数更新和验证流程。由于本次只使用 200 张图片并训练 1 个 epoch，实验重点是跑通 Mini-BLIP2 的完整训练流程，而不是追求接近原论文的大规模性能。
+从 loss 可以看出，模型完成了正向传播、反向传播、参数更新和验证 loss 计算流程。`train.ipynb` 只负责训练、保存 checkpoint 和绘制 loss 曲线；caption 生成测试单独放在 `test.ipynb` 中完成。
 
 ## 7. 生成结果展示
 
-生成示例图保存于：
+生成测试由 `code/test.ipynb` 完成。该 notebook 会加载 `code/outputs/mini_blip2_flickr8k.pt`，随机抽取 5 张图片或使用指定图片路径生成 caption，并保存测试示例图：
 
-- `code/outputs/generation_examples.png`
+- `code/outputs/test_generation_examples.png`
 
-![generation examples](../code/outputs/generation_examples.png)
+![test generation examples](../code/outputs/test_generation_examples.png)
 
-当前使用全量 Flickr8k 数据重新训练后，模型已经可以在验证集图片上生成非空英文 caption。下面展示 `generation_examples.png` 中的 5 个验证样例：
+当前使用全量 Flickr8k 数据训练后，模型已经可以通过独立测试 notebook 生成非空英文 caption。下面展示 `test_generation_examples.png` 对应的 5 个测试样例：
 
 | 图片编号 | 图片文件名 | 真实 Caption | 模型生成 Caption |
 |---|---|---|---|
-| 1 | `101654506_8eb26cfb60.jpg` | A brown and white dog is running through the snow . | A black and white dog is running in the snow. |
-| 2 | `104136873_5b5d41be75.jpg` | People sit on the mountainside and check out the view . | A group of people are hiking in the woods. |
-| 3 | `1042020065_fb3d3ba5ba.jpg` | A boy in a green shirt is looking down at many inflatable boats . | A boy is riding a raft on a water slide. |
-| 4 | `1048710776_bb5b0a5c7c.jpg` | a couple of several people sitting on a ledge overlooking the beach | A group of children are walking along a beach. |
-| 5 | `1056249424_ef2a2e041c.jpg` | The children are playing in the water . | Two children playing in the grass. |
+| 1 | `3354489242_dd529ffa1f.jpg` | A goalie tries to block the puck in a hockey game . | A soccer player in a red jersey is playing a soccer game. |
+| 2 | `2071309418_1d7580b0f0.jpg` | A white dog wearing a christmas reindeer headband plays with a brown dog in the grass among some stuffed animals . | A brown dog is running through a field of grass. |
+| 3 | `1247181182_35cabd76f3.jpg` | a man sits on a rock . | A man riding a bicycle in the snow. |
+| 4 | `3523950181_414978964e.jpg` | A goalie is covering his net while two other hockey players chase after the hockey puck . | A soccer player is playing a soccer game. |
+| 5 | `2554570943_122da6438f.jpg` | A child climbs up the inside of a red tube in a play structure . | A young girl in a white jumpsuit is jumping on a board. |
 
-从结果可以看出，模型已经学会了基本的英文 caption 生成格式，并且能够捕捉到部分明显视觉元素。例如第 1 张图片中，模型正确识别出狗和雪地场景，生成结果与真实 caption 比较接近；第 2、4 张图片中，模型能够识别出多人和户外场景，但对具体动作和地点描述仍不够准确；第 3、5 张图片中，模型生成了语法通顺的句子，但与真实图像内容存在一定偏差。
+从结果可以看出，模型已经学会了基本的英文 caption 生成格式，并且可以输出非空句子；但生成内容仍然比较粗糙，尤其在运动类别和动作细节上容易混淆，例如冰球场景被描述成 soccer game，人物姿态和场景也会出现偏差。
 
-总体来说，本次结果说明 Mini-BLIP2 的训练和推理流程已经跑通，生成阶段不再出现空 caption。由于本实验只训练 Mini Q-Former 和投影层，CLIP 视觉编码器与 OPT 语言模型均保持冻结，且训练轮数仍然较少，所以生成内容还比较泛化，细节理解能力有限。后续如果增加训练 epoch、调整学习率或进一步微调语言模型相关模块，生成结果还有继续提升空间。
+总体来说，本次结果说明 Mini-BLIP2 的训练和独立测试流程已经跑通，生成阶段不再出现空 caption。由于本实验只训练 Mini Q-Former 和投影层，CLIP 视觉编码器与 OPT 语言模型均保持冻结，且训练轮数仍然较少，所以生成内容还比较泛化，细节理解能力有限。后续如果增加训练 epoch、调整学习率或进一步微调语言模型相关模块，生成结果还有继续提升空间。
 
 
 ## 8. 总结
 
-本实验成功完成了 Mini-BLIP2 的核心流程复现：能够读取 Flickr8k 的图片及 caption，能够搭建冻结视觉编码器、可训练 Mini Q-Former、投影层和冻结语言解码器组成的模型，并且完成了训练、验证、保存 checkpoint、绘制 loss 曲线和调用 caption 生成接口。
+本实验成功完成了 Mini-BLIP2 的核心流程复现：能够读取 Flickr8k 的图片及 caption，能够搭建冻结视觉编码器、可训练 Mini Q-Former、投影层和冻结语言解码器组成的模型，并且完成了训练、验证 loss、保存 checkpoint 和绘制 loss 曲线。caption 生成与结果展示由独立的 `test.ipynb` 加载 checkpoint 后完成。
 
 
 如果继续改进，可以尝试：
