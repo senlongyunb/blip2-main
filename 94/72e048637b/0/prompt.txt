@@ -1,0 +1,14 @@
+<ide_opened_file>The user opened the file e:\program_prject\vscode_python_project\论文复现\blip2-main\blip2-main\code\train.ipynb in the IDE. This may or may not be related to the current task.</ide_opened_file>
+为什么最后输出的图片不包含预测的文字描述
+
+---
+
+<ide_selection>The user selected the lines 1 to 5 from e:\program_prject\vscode_python_project\论文复现\blip2-main\.entire\.gitignore:
+tmp/
+settings.local.json
+logs/
+redactors/local/
+
+
+This may or may not be related to the current task.</ide_selection>
+还是没有文字

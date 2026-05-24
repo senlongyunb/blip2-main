@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.6.2",
+  "checkpoint_id": "9472e048637b",
+  "strategy": "manual-commit",
+  "branch": "master",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "blip2-main/code/outputs/generation_examples.png",
+    "blip2-main/code/outputs/loss_curve.png",
+    "blip2-main/code/train.ipynb"
+  ],
+  "sessions": [
+    {
+      "metadata": "/94/72e048637b/0/metadata.json",
+      "transcript": "/94/72e048637b/0/full.jsonl",
+      "content_hash": "/94/72e048637b/0/content_hash.txt",
+      "prompt": "/94/72e048637b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 47519,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 397440,
+    "output_tokens": 13500,
+    "api_call_count": 11
+  }
+}
